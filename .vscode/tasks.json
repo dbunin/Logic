@@ -1,0 +1,12 @@
+{
+    "version": "0.1.0",
+    "command": "python3",
+    "args": ["gui.py"],
+    "problemMatcher": {
+        "fileLocation": ["relative", "${workspaceRoot}"],
+        "pattern": {
+            "regexp": "^(.*)+s$",
+            "message": 1
+        }
+    }
+}
