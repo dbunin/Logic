@@ -112,7 +112,7 @@ class AutomataGUI:
 
     def handleSimplifyTable(self):
         tree = self.automota.tree
-        variables = self.automota.findVariables(tree)
+        variables = tree.findVariables()
         tt = TruthTable(variables, tree)
         rows = []
         row = []
@@ -129,14 +129,14 @@ class AutomataGUI:
 
     def handleNormalForm(self):
         tree = self.automota.tree
-        variables = self.automota.findVariables(tree)
+        variables = tree.findVariables()
         tt = TruthTable(variables, tree)
         normalForm = tt.getNormalForm(tt.rows, variables)
         self.status.set(normalForm)
 
     def handleSimplifiedNormalForm(self):
         tree = self.automota.tree
-        variables = self.automota.findVariables(tree)
+        variables = tree.findVariables(tree)
         tt = TruthTable(variables, tree)
         normalForm = tt.getNormalForm(tt.simplify(tt.rows), variables)
         self.status.set(normalForm)

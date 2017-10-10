@@ -58,3 +58,70 @@ class Tree:
     def checkIfSignIsCorrect(self, sign):
         possibleSigns = ['&', '|', '>', '~', '=']
         return sign in possibleSigns
+
+    def findSigns(self):
+        array = []
+        if self.right is not None:
+            array.extend(self.findSigns(self.right))
+        if self.left is not None:
+            array.extend(self.findSigns(self.left))
+        if self.checkIfSignIsCorrect(self.data):
+            array.append(self)
+        return array
+        
+    def findVariables(self):
+        array = []
+        if self.checkIfSignIsCorrect(self.data) is False:
+            array.append(self.data)
+            return list(set(array))
+        else:
+            if self.right is not None:
+                array.extend(self.findVariables(self.right))
+            if self.left is not None:
+                array.extend(self.findVariables(self.left))
+            return list(set(array))
+
+    def nanDify(self, node):
+        if node.data == '&':
+            left_child = self.nanDify(node.left)
+            right_child = self.nanDify(node.right)
+            node.left = left_child
+            node.right = right_child
+            return node
+        elif node.data == '|':
+            newNode = Tree('%')
+            left_child = self.nanDify(node.left)
+            right_child = self.nanDify(node.right)
+            newNode.left = Tree('~')
+            newNode.left.addChild(left_child)
+            newNode.right = Tree('~')
+            newNode.right = right_child
+            return newNode
+        elif node.data == '>':
+            newNode = Tree('%')
+            left_child = self.nanDify(node.left)
+            right_child = self.nanDify(node.right)
+            newNode.left = left_child
+            newNode.right = Tree('~')
+            newNode.right = right_child
+            return newNode
+        elif node.data == '~':
+            left_child = self.nanDify(node.right)
+            node.left = left_child
+            return node
+        elif node.data == '=':
+            newNode = Tree('%')
+            left_child = self.nanDify(node.left)
+            right_child = self.nanDify(node.right)
+            newNode.left = Tree('%')
+            newNode.left.addChild(Tree('~'))
+            newNode.left.left.addChild(left_child)
+            newNode.left.right.addChild(right_child)
+            
+            newNode.left = Tree('~')
+            newNode.left.addChild(left_child)
+            newNode.right = Tree('~')
+            newNode.right = right_child
+            return node
+        else:
+            return node

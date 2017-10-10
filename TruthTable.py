@@ -79,9 +79,14 @@ class TruthTable:
                             normalForm = normalForm + '~' + variables[index]
                         elif value == '1':
                             normalForm = normalForm + variables[index]
-                        if index != len(row[-1]):
-                            normalForm = normalForm + '&'
+                        normalForm = normalForm + '&'
                 while normalForm[-1] == '&':
                     normalForm = normalForm[:-1]
                 normalForm = normalForm + ')'
         return normalForm
+
+    def getHashCode(self, rows):
+        stringHashCode = ''
+        for row in rows[::-1]:
+            stringHashCode = stringHashCode + row[:-1]
+        return int(stringHashCode, 2)
