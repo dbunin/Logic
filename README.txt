@@ -1,0 +1,1 @@
+Generating and manipulate a truth table from ASII notation.
