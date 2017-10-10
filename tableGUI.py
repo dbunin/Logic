@@ -2,6 +2,14 @@ import tkinter as tk
 
 
 class TableGUI(tk.Tk):
+    """
+    The secondary GUI with a Truth Table.
+
+    Attributes:
+        rows    (int): number of rows
+        colomns (int): number of colomns
+        data    (List): list of rows to put in table.
+    """
     def __init__(self, rows, colomns, data):
         tk.Tk.__init__(self)
         t = SimpleTable(self, rows, colomns)
@@ -12,7 +20,19 @@ class TableGUI(tk.Tk):
 
 
 class SimpleTable(tk.Frame):
-    def __init__(self, parent, rows=10, columns=2):
+    """
+    A table class.
+
+    Args:
+        _widgets             (List): List of widgets
+        grid_columnconfigure (Grid): Grid on form.
+
+    Attributes:
+        parent  (Tk): parent of a table
+        rows    (int): number of rows
+        columns (List): number of colomns.
+    """
+    def __init__(self, parent, rows, columns):
         # use black background so it "peeks through" to 
         # form grid lines
         tk.Frame.__init__(self, parent, background="black")

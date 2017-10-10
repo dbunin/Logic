@@ -1,15 +1,29 @@
 from node import Tree
 from subprocess import check_call
-import itertools
 
 
 class Automota:
+    """
+    Object to generete a tree out of string
+    and manipulate the tree.
 
+    Args:
+        tree       (Tree): a tree object genereted
+                           from user's input
+        counter    (int): a counter
+    """
     def __init__(self):
         self.tree = None
         self.counter = 0
 
     def parseString(self, toParse, parent=None):
+        """
+        Change to default comparing to the Object.
+
+        Attributes:
+            toParse (String): users inputed ASII string
+            parent  (Tree): Node of a tree
+        """
         komaIndex = toParse.find(',')
         if komaIndex == -1:
             notIndex = toParse.find('~')
@@ -51,6 +65,16 @@ class Automota:
                 raise ValueError()
 
     def traverseTree(self, tree, parentCounter=None):
+        """
+        Generate a dot string for dot file.
+
+        Attributes:
+            tree          (Tree): The object to traverse
+            parentCounter (int): the number of parents.
+
+        Returns:
+            List: The rows to write a dot file.
+        """
         if tree is None:
             return ['']
         resultArray = []
@@ -71,26 +95,19 @@ class Automota:
         return list(filter(('').__ne__, resultArray))
 
     def writeToFile(self, lines):
+        """
+        Function to write lines to a file.
+
+        Attributes:
+            lines (List): The rows of string to write to file.
+        """
         file = open('tree.dot', 'w')
         for line in lines:
             file.write(line + '\n')
         file.close()
 
-    def getInfix(self, tree):
-        if tree is None:
-            return ""
-        if tree.data == "~":
-            outString = tree.data + self.getInfix(tree.left)
-            return outString
-        outString = ("(" + self.getInfix(tree.left)
-                     + tree.data
-                     + self.getInfix(tree.right) + ")")
-        outString = outString.replace('&', '^')
-        outString = outString.replace('~', '¬')
-        outString = outString.replace('>', '⇒')
-        outString = outString.replace('=', '⇔')
-        outString = outString.replace('|', '⋁')
-        return outString
-
     def drawFile(self):
+        """
+        Creates a png file from a dot file.
+        """
         check_call(['dot', '-Tpng', 'tree.dot', '-o', 'outTree.png'])

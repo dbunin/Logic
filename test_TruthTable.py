@@ -54,7 +54,11 @@ class TestTruthTable(unittest.TestCase):
         simplified_table = testedClass.simplify(values)
         normalForm = testedClass.getNormalForm(simplified_table,
                                                ['A', 'B'])
-        print(normalForm)
+        expectedTree = Tree('|')
+        expectedTree.addChild(Tree('~'))
+        expectedTree.addChild(Tree('B'))
+        expectedTree.left.addChild(Tree('A'))
+        self.assertEqual(expectedTree, normalForm)
 
 
 if __name__ == '__main__':

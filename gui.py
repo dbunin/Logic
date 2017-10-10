@@ -9,15 +9,32 @@ from TruthTable import TruthTable
 
 
 class AutomataGUI:
+    """
+    The main gui form.
+
+    Args:
+        root       (Tk): root of a form
+        automota   (Automota): an Automota object
+        right      (Tree): right child.
+        regexVar   (StringVar): value of a line edit
+        status     (StringVar): value of a status label
+        FrameSizeX (Integer): width of a form
+        FrameSizeY (Integer): height of a form.
+
+    Attributes:
+        root       (Tk): root of a form.
+    """
     def __init__(self, root=None):
         self.root = root
         self.automota = Automota()
         self.initUI()
-        self.selectedButton = 0
         startRegex = "&(A, B)"
         self.regexVar.set(startRegex)
 
     def initUI(self):
+        """
+        Creates all the widgets of a form.
+        """
         self.root.title("Truth table from regular expressions")
         ScreenSizeX = self.root.winfo_screenwidth()
         ScreenSizeY = self.root.winfo_screenheight()
@@ -59,19 +76,25 @@ class AutomataGUI:
         minDFAButton = Button(buttonGroup, text="Simplify Table", width=15,
                               command=self.handleSimplifyTable)
         newBtn = Button(buttonGroup, text="Get Normal Form", width=15,
-                              command=self.handleNormalForm)
-        simplifiedNormalFormBtn = Button(buttonGroup, text="Get Simplified Normal Form", width=15,
-                              command=self.handleSimplifiedNormalForm)
+                        command=self.handleNormalForm)
+        simplifiedNormalFormBtn = Button(buttonGroup, text="Get Simplified Normal Form", width=20,
+                                         command=self.handleSimplifiedNormalForm)
+        nandBtn = Button(buttonGroup, text="NANDify", width=15,
+                                         command=self.handleNandify)
         nfaButton.grid(row=0, column=1)
         dfaButton.grid(row=0, column=2)
         minDFAButton.grid(row=0, column=3)
         newBtn.grid(row=0, column=4)
         simplifiedNormalFormBtn.grid(row=0, column=5)
+        nandBtn.grid(row=1, column=1)
         regexFrame.grid(row=0, column=0, sticky=W, padx=(50, 0))
         self.statusLabel.grid(row=2, column=0, sticky=W, padx=(50, 0))
         buttonGroup.grid(row=3, column=0, sticky=W, padx=(50, 0))
 
     def handleBuildRegexButton(self):
+        """
+        Creates a tree using user's input.
+        """
         self.automota.counter = 0
         self.automota.tree = None
         self.status.set('')
@@ -79,7 +102,7 @@ class AutomataGUI:
         regexStr = regexStr.replace(" ", "")
         try:
             self.automota.parseString(regexStr)
-            infix = self.automota.getInfix(self.automota.tree)
+            infix = self.automota.tree.getInfix()
             self.status.set(infix)
             lines = ['graph logic {']
             lines = lines + self.automota.traverseTree(self.automota.tree)
@@ -90,13 +113,21 @@ class AutomataGUI:
             self.status.set('The input is incorrect')
 
     def handleShowImage(self):
+        """
+        Opens a file with the tree.
+        """
         image = Image.open('outTree.png')
         image.show()
 
     def handleGenerateTable(self):
+        """
+        Generates a table from a tree and
+        opens another form with a table.
+        """
         tree = self.automota.tree
-        variables = self.automota.findVariables(tree)
+        variables = tree.findVariables()
         tt = TruthTable(variables, tree)
+        self.status.set(tt.getHashCode(tt.rows))
         rows = []
         row = []
         variables.sort()
@@ -106,14 +137,20 @@ class AutomataGUI:
         rows.append(row)
         rows.extend(tt.rows)
         tableGUI = TableGUI(len(rows), len(rows[0]), rows)
-        title = self.automota.getInfix(self.automota.tree)
+        title = self.automota.tree.getInfix()
         tableGUI.title(title)
         tableGUI.mainloop()
 
     def handleSimplifyTable(self):
+        """
+        Generates a simplified table from a tree
+        and opens another form with a table.
+        """
         tree = self.automota.tree
         variables = tree.findVariables()
         tt = TruthTable(variables, tree)
+        simplifiedRows = tt.simplify(tt.rows)
+        self.status.set(tt.getHashCode(simplifiedRows))
         rows = []
         row = []
         variables.sort()
@@ -121,25 +158,49 @@ class AutomataGUI:
             row.append(variable)
         row.append('Result')
         rows.append(row)
-        rows.extend(tt.simplify(tt.rows))
+        rows.extend(simplifiedRows)
         tableGUI = TableGUI(len(rows), len(rows[0]), rows)
-        title = self.automota.getInfix(self.automota.tree)
+        title = self.automota.tree.getInfix()
         tableGUI.title(title)
         tableGUI.mainloop()
 
     def handleNormalForm(self):
+        """
+        Generetes normal form.
+        """
         tree = self.automota.tree
         variables = tree.findVariables()
         tt = TruthTable(variables, tree)
-        normalForm = tt.getNormalForm(tt.rows, variables)
-        self.status.set(normalForm)
+        normalTree = tt.getNormalForm(tt.rows, variables)
+        self.status.set(normalTree.getInfix())
 
     def handleSimplifiedNormalForm(self):
+        """
+        Generetes simplified normal form.
+        """
         tree = self.automota.tree
-        variables = tree.findVariables(tree)
+        variables = tree.findVariables()
         tt = TruthTable(variables, tree)
-        normalForm = tt.getNormalForm(tt.simplify(tt.rows), variables)
-        self.status.set(normalForm)
+        normalTree = tt.getNormalForm(tt.simplify(tt.rows), variables)
+        self.status.set(normalTree.getInfix())
+
+    def handleNandify(self):
+        """
+        Generetes a nandified form.
+        """
+        tree = self.automota.tree
+        variables = tree.findVariables()
+        tt = TruthTable(variables, tree)
+        normalTree = tt.getNormalForm(tt.simplify(tt.rows), variables)
+        normalTree.clearDoubleNegation()
+        nanTree = normalTree.nanDify(normalTree)
+        self.automota.tree = nanTree
+        self.status.set(nanTree.getInfix())
+        lines = ['graph logic {']
+        lines = lines + self.automota.traverseTree(self.automota.tree)
+        lines.append('}')
+        self.automota.writeToFile(lines)
+        self.automota.drawFile()
 
 
 def main():
@@ -150,3 +211,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
