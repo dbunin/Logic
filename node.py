@@ -50,6 +50,10 @@ class Tree:
             if left == '1':
                 return '0'
             return '1'
+        elif data == '%':
+            if left == '1' and right == '1':
+                return '0'
+            return '1'
         else:
             if left == right:
                 return '1'
@@ -117,11 +121,9 @@ class Tree:
             newNode.left.addChild(Tree('~'))
             newNode.left.left.addChild(left_child)
             newNode.left.right.addChild(right_child)
-            
-            newNode.left = Tree('~')
-            newNode.left.addChild(left_child)
-            newNode.right = Tree('~')
-            newNode.right = right_child
-            return node
+            newNode.right = Tree('%')
+            newNode.right.addChild(left_child)
+            newNode.right.addChild(right_child)
+            return newNode
         else:
             return node
